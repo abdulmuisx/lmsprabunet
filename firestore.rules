@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.role == 'admin' ||
+        request.auth.token.email.matches('.*admin.*') ||
+        request.auth.token.email == 'admin@prabunet.sch.id' ||
+        request.auth.token.email == 'aamuisx@gmail.com' ||
+        request.auth.token.email == 'abdulmuis01@guru.smk.belajar.id'
+      );
+    }
+
+    // 1. Koleksi pendaftar (PPDB / Registrasi Siswa Baru)
+    match /pendaftar/{pendaftarId} {
+      allow read, write: if true;
+    }
+
+    // 2. Koleksi bank_soal (Manajemen Soal CBT & Seeding)
+    match /bank_soal/{soalId} {
+      allow read, write: if true;
+    }
+
+    // 3. Koleksi hasil_ujian (Hasil Pengerjaan Siswa & Auto-Save)
+    match /hasil_ujian/{hasilId} {
+      allow read, write: if true;
+    }
+
+    // Default allow for app collections
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
